@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>HTML5</title>
+</head>
+<body>
+  <h1>HTML5</h1>
+  <form action="" method="post" name="f">
+    <h3>输入类型</h3>
+    <input type="email" placeholder="Email"/><br/>
+    <input type="url" placeholder="url"/><br/>
+    <input type="number" min="16" max="20" placeholder="age"/>*<br/>
+    <input type="date" placeholder="出生日期"/>*<br/>
+    <input type="color" placeholder="颜色"/><br/>
+    
+    <h3>输入属性</h3>
+    <input type="text" placeholder="用户名"/>*<br/>
+    <input type="text" autofocus="autofocus" 
+      placeholder="自动对焦"/>*<br/>
+    <input type="text" required="required"
+       placeholder="必须填写"/>*<br/>
+    <input type="text" pattern="[0-9]{6}" 
+       placeholder="必填正则表达式"/>*<br/>
+    <input type="text" pattern="[a-zA-Z][\w]{5,9}" 
+       placeholder="必填正则表达式"/>*<br/>
+    <input type="file"  multiple="multiple"/>*<br/>
+    <input type="number" step="10" min="0" max="100" 
+      placeholder="age step"/><br/>
+      
+    <input type="text" list="mail_list"
+        placeholder="输入邮件人">
+    <datalist id="mail_list">
+      <option value="wang@newer.com">
+      <option value="liwang@newer.com">
+      <option value="wtao@newer.com">
+      <option value="admin@newer.com">
+    </datalist><br/>
+    
+    <input type="submit" value="OK"/>    
+  </form>
+</body>
+</html>

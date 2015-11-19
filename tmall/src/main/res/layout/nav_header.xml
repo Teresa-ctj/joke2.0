@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="192dp"
+              android:background="?attr/colorPrimaryDark"
+              android:gravity="bottom"
+              android:orientation="vertical"
+              android:padding="16dp"
+              android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+  <!-- 显示当前用户的图标和用户名-->
+  <ImageView
+      android:id="@+id/imgUsername"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:src="@drawable/inter_logo"/>
+
+  <TextView
+      android:id="@+id/tvUsername"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/height_margin_top"
+      android:gravity="center"
+      android:text="Username"
+      android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+</LinearLayout>

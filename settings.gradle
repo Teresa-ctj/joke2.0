@@ -1,0 +1,1 @@
+include ':app', ':test', ':tmall', ':joke', ':testrecycleview', ':testupload'
