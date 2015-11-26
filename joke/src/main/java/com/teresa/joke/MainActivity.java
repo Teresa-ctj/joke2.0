@@ -15,9 +15,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.style.ImageSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +41,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -48,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MyFragmentAdapter adapter;
     private DrawerLayout drawerLayout;
-    private ImageView userImg;
+    private CircleImageView userImg;
     private TextView username;
     private TextFragment textFragment;
     private ImageFragment imageFragment;
@@ -61,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
     public static Tencent mTencent;
     // QQ用户信息
     private UserInfo mInfo;
-private boolean status;//登录状态
+    private boolean status;//登录状态
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,16 +113,16 @@ private boolean status;//登录状态
         //判断用户是否登录过
         if (JokeUtil.isLogined(getApplicationContext())) {
             //登陆过。加载已登录导航
-             status=true;
+            status = true;
             //从本地文件获取用户头像
             //nav_userImage=JokeUtil.getUserImage();
             //userImg.setImageBitmap(nav_userImage);
             //navView.inflateMenu(R.menu.menu_logined_nav);
         } else {
-            status=false;
+            status = false;
             //navView.inflateMenu(R.menu.drawer_view);
         }
-        Log.i("MainActivity",String.valueOf(status)+"**********");
+        Log.i("MainActivity", String.valueOf(status) + "**********");
         setDrawerContent(navView, status);
 
     }
@@ -134,32 +141,44 @@ private boolean status;//登录状态
     //初始化抽屉登录布局
     private void setDrawerContent(final NavigationView navView, final boolean status) {
         View view = View.inflate(this, R.layout.login_nav, navView);
-        userImg = (ImageView) view.findViewById(R.id.imgUsername);
+        userImg = (CircleImageView) view.findViewById(R.id.imgUsername);
         username = (TextView) view.findViewById(R.id.tvUsername);
-        if(status==true||getIntent().getBooleanExtra("ifLogined",false)==true){
-            navView.getMenu().setGroupVisible(R.id.nav_view,false);
+        if (status == true || getIntent().getBooleanExtra("ifLogined", false) == true) {
+            navView.getMenu().setGroupVisible(R.id.nav_view, false);
             navView.inflateMenu(R.menu.menu_logined_nav);
-        }else if(status==false||getIntent().getBooleanExtra("ifLogined",false)==false){
-            navView.getMenu().setGroupVisible(R.id.nav_view,false);
+        } else if (status == false || getIntent().getBooleanExtra("ifLogined", false) == false) {
+            navView.getMenu().setGroupVisible(R.id.nav_view, false);
             navView.inflateMenu(R.menu.drawer_view);
-       }
+        }
         // -- 左侧抽屉导航视图 菜单 ------------------------------
         // 导航视图中的菜单选中事件
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                if (status == false) {
-                    switch (menuItem.getItemId()) {
-                        // 匹配菜单的选项 (其它选项的处理 省略)
-                        case R.id.nav_login:
-                            //点击登录，跳到登录页面，返回一个是否成功登录的值，采用回调函数
-                            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                            startActivityForResult(loginIntent, 100);
-                            break;
-                        case R.id.nav_register:
-                            startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
-                            break;
-                    }
+
+
+                switch (menuItem.getItemId()) {
+                    // 匹配菜单的选项 (其它选项的处理 省略)
+                    case R.id.nav_login:
+                        //点击登录，跳到登录页面，返回一个是否成功登录的值，采用回调函数
+                        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivityForResult(loginIntent, 100);
+                        break;
+                    case R.id.nav_register:
+                        startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
+                        break;
+
+                    case R.id.nav_submission:
+                        startActivity(new Intent(getApplicationContext(), SubmitActivity.class));
+                        break;
+                    case R.id.nav_logout:
+                        //先清除选项存储数据,第一次用QQ登录，关闭进程，第二次登录，点击注销，闪退
+
+                        JokeUtil.clearData();
+                        //Toast.makeText(getApplicationContext(), String.valueOf(JokeUtil.isLogined(getApplicationContext())), Toast.LENGTH_SHORT).show();
+                        //刷新界面
+                       startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                       finish();
 
                 }
                 // 选择后自动关闭左侧抽屉
@@ -171,6 +190,38 @@ private boolean status;//登录状态
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // TODO Auto-generated method stub
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exitBy2Click();      //调用双击退出函数
+        }
+        return false;
+    }
+
+    /**
+     * 双击退出函数
+     */
+    private static Boolean isExit = false;
+
+    private void exitBy2Click() {
+        Timer tExit = null;
+        if (isExit == false) {
+            isExit = true; // 准备退出
+            Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            tExit = new Timer();
+            tExit.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    isExit = false; // 取消退出
+                }
+            }, 2000); // 如果2秒钟内没有按下返回键，则启动定时器取消掉刚才执行的任务
+
+        } else {
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -179,13 +230,14 @@ private boolean status;//登录状态
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==100) {
+        if (requestCode == 100) {
             if (resultCode == RESULT_OK) {
                 status = data.getBooleanExtra("qqLogined", false);
                 Log.i("MainActivity", String.valueOf(status) + "qq success");
                 Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                intent.putExtra("ifLogined",status);
+                intent.putExtra("ifLogined", status);
                 startActivity(intent);
+                finish();
             }
         }
     }
@@ -260,7 +312,7 @@ private boolean status;//登录状态
             } else if (msg.what == 1) {
                 nav_userImage = (Bitmap) msg.obj;
                 userImg.setImageBitmap(nav_userImage);
-
+                mTencent.logout(getApplicationContext());
             }
         }
 
