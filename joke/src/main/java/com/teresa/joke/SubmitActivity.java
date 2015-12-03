@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,7 +53,8 @@ public class SubmitActivity extends AppCompatActivity {
     private static final int TAKE_PHOTO = 0;
     private static final int CHOOSE_PHOTO = 1;
     int count = 0;
-
+    int width=0;
+    int height=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +111,7 @@ public class SubmitActivity extends AppCompatActivity {
         submitLayout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         ImageView image = new ImageView(this);
+lp1.gravity= Gravity.CENTER_HORIZONTAL;
         submitLayout.addView(image, lp1);
         return image;
     }
@@ -123,12 +126,19 @@ public class SubmitActivity extends AppCompatActivity {
                     // 将保存在本地的图片取出并缩小后显示在界面上
                     Bitmap bitmap = BitmapFactory.decodeFile(Environment
                             .getExternalStorageDirectory() + "/submit/submit_image.jpg");
-                    Bitmap newBitmap = ImageTools.zoomBitmap(bitmap, 900, 700);
+                    if(bitmap.getWidth()>bitmap.getHeight()){
+                        width=900;
+                        height=700;
+                    }else{
+                        width=700;
+                        height=900;
+                    }
+                    Bitmap newBitmap = ImageTools.zoomBitmap(bitmap, width, height);
                     // 由于Bitmap内存占用较大，这里需要回收内存，否则会报out of memory异常
                     bitmap.recycle();
-
+ImageView imageT=createImageView();
                     submitContent.setVisibility(View.GONE);
-
+imageT.setImageBitmap(newBitmap);
 
                     // 将处理过的图片显示在界面上，并保存到本地
 
@@ -154,13 +164,21 @@ public class SubmitActivity extends AppCompatActivity {
                         Bitmap photo = MediaStore.Images.Media.getBitmap(resolver,
                                 originalUri);
                         if (photo != null) {
+
+                            if(photo.getWidth()>photo.getHeight()){
+                                width=900;
+                                height=700;
+                            }else{
+                                width=700;
+                                height=900;
+                            }
                             // 为防止原始图片过大导致内存溢出，这里先缩小原图显示，然后释放原始Bitmap占用的内存
-                           Bitmap smallBitmap = ImageTools.zoomBitmap(photo, photo.getWidth()/2, photo.getHeight()/2);
+                           Bitmap smallBitmap = ImageTools.zoomBitmap(photo, width, height);
                             // 释放原始图片占用的内存，防止out of memory异常发生
 
                             submitContent.setVisibility(View.GONE);
-                            ImageView image = createImageView();
-                            image.setImageBitmap(smallBitmap);
+                            ImageView imageC = createImageView();
+                            imageC.setImageBitmap(smallBitmap);
                             photo.recycle();
                             count++;
                             // 将处理过的图片显示在界面上，并保存到本地
